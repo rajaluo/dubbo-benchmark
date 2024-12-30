@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:property-placeholder location="classpath:benchmark.properties" system-properties-mode="OVERRIDE"/>
+    <context:annotation-config/>
+    
+    <!-- 启用组件扫描，确保能扫描到JacksonConfig -->
+    <context:component-scan base-package="org.apache.dubbo.benchmark.config"/>
+
+    <!-- Spring Cloud 配置 -->
+    <bean id="httpMessageConvertersAutoConfiguration" class="org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration"/>
+    <bean id="feignAutoConfiguration" class="org.springframework.cloud.openfeign.FeignAutoConfiguration"/>
+    
+    <!-- Feign 消息转换器配置 -->
+    <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>
+    <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="objectMapper" ref="objectMapper"/>
+        <property name="supportedMediaTypes">
+            <list>
+                <value>application/json</value>
+                <value>text/plain</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="httpMessageConverters" class="org.springframework.boot.autoconfigure.http.HttpMessageConverters">
+        <constructor-arg>
+            <list>
+                <ref bean="stringHttpMessageConverter"/>
+                <ref bean="mappingJackson2HttpMessageConverter"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- Spring Cloud REST service -->
+    <bean id="springCloudUserService" class="org.springframework.cloud.openfeign.FeignClientFactoryBean">
+        <property name="url" value="http://${server.host}:8081/users"/>
+        <property name="type" value="org.apache.dubbo.benchmark.service.SpringCloudUserServiceFeignClient"/>
+        <property name="name" value="springcloud-dubbo-client"/>
+        <property name="contextId" value="springcloud-dubbo-client"/>
+    </bean>
+
+    <!-- Feign to Dubbo REST service -->
+    <bean id="dubboRestUserService" class="org.springframework.cloud.openfeign.FeignClientFactoryBean">
+        <property name="url" value="http://${server.host}:20880/users"/>
+        <property name="type" value="org.apache.dubbo.benchmark.service.DubboRestUserServiceFeignClient"/>
+        <property name="name" value="springcloud-dubbo-client"/>
+        <property name="contextId" value="springcloud-dubbo-client"/>
+    </bean>
+
+    <!-- Dubbo 配置 -->
+    <dubbo:application name="springcloud-dubbo-client">
+        <dubbo:parameter key="qos.enable" value="false"/>
+    </dubbo:application>
+
+    <!-- Dubbo REST service -->
+    <dubbo:reference id="restUserService" protocol="rest" interface="org.apache.dubbo.benchmark.service.UserService"
+                     url="rest://${server.host}:20880">
+        <dubbo:parameter key="connections" value="32"/>
+        <dubbo:parameter key="threadpool" value="fixed"/>
+        <dubbo:parameter key="threads" value="64"/>
+        <dubbo:parameter key="iothreads" value="8"/>
+        <dubbo:parameter key="dispatcher" value="all"/>
+
+    </dubbo:reference>
+
+    <!-- Dubbo Triple service -->
+    <dubbo:reference id="triUserService" protocol="tri" client="netty4"
+                     interface="org.apache.dubbo.benchmark.service.UserService"
+                     url="tri://${server.host}:20881">
+        <!-- <dubbo:parameter key="connections" value="200"/>
+        <dubbo:parameter key="threadpool" value="fixed"/>
+        <dubbo:parameter key="threads" value="200"/>
+        <dubbo:parameter key="iothreads" value="4"/>-->
+    </dubbo:reference>
+
+    <!-- Dubbo RPC service -->
+    <dubbo:reference id="dubboUserService" protocol="dubbo" client="netty4"
+                     interface="org.apache.dubbo.benchmark.service.UserService"
+                     url="dubbo://${server.host}:20882?optimizer=org.apache.dubbo.benchmark.serialize.SerializationOptimizerImpl&amp;serialization=kryo">
+        <dubbo:parameter key="prefer.serialization" value="kryo"/>
+    </dubbo:reference>
+
+    <bean id="kryoClassInitializer" class="org.apache.dubbo.benchmark.config.KryoClassInitializer"/>
+
+</beans> 

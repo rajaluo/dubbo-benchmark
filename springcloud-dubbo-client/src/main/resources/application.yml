@@ -1,0 +1,40 @@
+server:
+  port: 8082
+  host: 127.0.0.1
+
+spring:
+  application:
+    name: springcloud-dubbo-client
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  main:
+    allow-bean-definition-overriding: true
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+    logger: slf4j
+    qos-enable: false
+
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+    register: false
+
+
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+  compression:
+    request:
+      enabled: false
+    response:
+      enabled: false 

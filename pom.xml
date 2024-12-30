@@ -12,7 +12,7 @@
     <properties>
         <java.source>1.8</java.source>
         <java.target>1.8</java.target>
-        <dubbo.version>3.2.11</dubbo.version>
+        <dubbo.version>3.2.15</dubbo.version>
         <dubbo-serialization-extension.version>1.0.1</dubbo-serialization-extension.version>
         <netty.version>4.1.107.Final</netty.version>
         <kryo.version>5.3.0</kryo.version>
@@ -65,6 +65,8 @@
         <module>native-grpc-server</module>
         <module>springcloud-server</module>
         <module>springcloud-client</module>
+        <module>springcloud-dubbo-server</module>
+        <module>springcloud-dubbo-client</module>
 
     </modules>
 

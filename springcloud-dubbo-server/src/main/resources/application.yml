@@ -1,0 +1,48 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: springcloud-dubbo-server
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  main:
+    allow-bean-definition-overriding: true
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+    logger: slf4j
+    qos-enable: false
+  protocols:
+    rest:
+      name: rest
+      port: 20880
+      server: netty4
+    tri:
+      name: tri
+      port: 20881
+      server: netty4
+    dubbo:
+      name: dubbo
+      port: 20882
+      server: netty4
+      serialization: kryo
+      optimizer: org.apache.dubbo.benchmark.serialize.SerializationOptimizerImpl
+  registry:
+    address: nacos://${nacos.address:127.0.0.1}:8848?username=nacos&password=nacos
+    register-mode: instance
+
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#  compression:
+#    request:
+#      enabled: true
+#    response:
+#      enabled: true 

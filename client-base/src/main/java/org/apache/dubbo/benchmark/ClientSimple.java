@@ -4,11 +4,7 @@ import org.apache.dubbo.benchmark.bean.Page;
 import org.apache.dubbo.benchmark.bean.User;
 import org.apache.dubbo.benchmark.rpc.AbstractClient;
 import org.apache.dubbo.benchmark.service.UserService;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.Options;
@@ -19,6 +15,9 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)  //raja
+@Warmup(iterations = 1, time = 10)      //raja
+@Measurement(iterations = 1, time = 30) //raja
 public class ClientSimple extends AbstractClient {
     private static final int CONCURRENCY = 32;
 

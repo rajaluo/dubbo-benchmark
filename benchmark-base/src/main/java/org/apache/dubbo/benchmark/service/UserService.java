@@ -1,17 +1,26 @@
 package org.apache.dubbo.benchmark.service;
 
-
 import org.apache.dubbo.benchmark.bean.Page;
 import org.apache.dubbo.benchmark.bean.User;
 
+import javax.ws.rs.*;
+
+@Path("/users")
 public interface UserService {
-    public boolean existUser(String email);
+    @GET
+    @Path("/exist/{email}")
+    boolean existUser(@PathParam("email") String email);
 
-    public boolean createUser(User user);
+    @POST
+    @Path("/create")
+    boolean createUser(User user);
 
-    public User getUser(long id);
+    @GET
+    @Path("/get/{id}")
+    User getUser(@PathParam("id") long id);
 
-    public Page<User> listUser(int pageNo);
-
+    @GET
+    @Path("/list/{pageNo}")
+    Page<User> listUser(@PathParam("pageNo") int pageNo);
 }
 
